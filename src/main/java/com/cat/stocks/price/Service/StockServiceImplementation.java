@@ -1,7 +1,12 @@
 package com.cat.stocks.price.Service;
 
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import com.cat.stocks.price.controller.Response.StockInfoResponse;
 import com.cat.stocks.price.controller.Response.StockPriceResponse;
@@ -10,20 +15,28 @@ import com.cat.stocks.price.controller.request.StockRequest;
 import com.cat.stocks.price.domain.Company;
 import com.cat.stocks.price.domain.Stock;
 import com.cat.stocks.price.repositories.StockRepository;
-import com.cat.stocks.price.util.FeignServiceUtil;
-import com.cat.stocks.price.util.JsonFeignResponseUtil;
-import feign.Response;
+/*import com.cat.stocks.price.util.FeignServiceUtil;
+import com.cat.stocks.price.util.JsonFeignResponseUtil;*/
+import com.fasterxml.jackson.databind.ObjectMapper;
+/*import feign.Response;*/
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class StockServiceImplementation implements StockService{
-
+    private final ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
     StockRepository stockRepository;
+
     @Autowired
-    FeignServiceUtil feignServiceUtil;
+    RestTemplate restTemplate;
+
 
     @Override
     public Stock createStockPrice(StockPriceRequest stockPriceRequest) {
@@ -31,7 +44,7 @@ public class StockServiceImplementation implements StockService{
         return stockRepository.save(buildStockPrice(stockPriceRequest));
     }
 
-    @Override
+    /*@Override
     public StockPriceResponse fetchCompanyStock(String companyCode) {
         Object clazz;
         clazz= Company.class;
@@ -40,6 +53,26 @@ public class StockServiceImplementation implements StockService{
         ResponseEntity<Object> responseEntity = JsonFeignResponseUtil.toResponseEntity(response, clazz);
         Object responseBody = responseEntity.getBody();
         stockPriceResponse.stock(stockRepository.getLatestStockDetails(companyCode)).company((Company) responseBody);
+        return stockPriceResponse.build();
+    }*/
+
+    public StockPriceResponse fetchCompanyStock(String companyCode) {
+
+        HttpHeaders headers=new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        HttpEntity httpHeaders=new HttpEntity<String>("parameters",headers);
+        System.out.println("calling Company service");
+
+        Object clazz;
+        clazz= Company.class;
+        ResponseEntity<Object> responseEntity=restTemplate.exchange("http://company-service/api/v1.0/market/company/info/"+companyCode, HttpMethod.GET,httpHeaders,Object.class);
+        /*Map response = new HashMap<>();*/
+        Company response = objectMapper
+            .convertValue(
+                responseEntity.getBody(), Company.class);
+
+        StockPriceResponse.StockPriceResponseBuilder stockPriceResponse=StockPriceResponse.builder();
+        stockPriceResponse.stock(stockRepository.getLatestStockDetails(companyCode)).company(response);
         return stockPriceResponse.build();
     }
 

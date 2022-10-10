@@ -1,3 +1,4 @@
+/*
 package com.cat.stocks.price.util;
 
 import feign.Response;
@@ -12,3 +13,4 @@ public interface FeignServiceUtil {
     @GetMapping("/info/{companyCode}")
     Response getCompany(@PathVariable(required = false) String companyCode);
 }
+*/
