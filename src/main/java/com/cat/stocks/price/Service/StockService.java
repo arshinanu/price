@@ -17,4 +17,5 @@ public interface StockService {
     List<Stock> fetchStockPrice(String companyCode);
     List<Stock> fetchAllLatestStocks();
     StockInfoResponse retrieveStock(StockRequest stockRequest);
+    void deleteStockForCompany(String companyCode);
 }

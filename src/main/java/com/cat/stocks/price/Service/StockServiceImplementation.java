@@ -26,6 +26,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -96,6 +97,13 @@ public class StockServiceImplementation implements StockService{
             Stock::getPrice).average().getAsDouble()).maxStockPrice(stocksTemp.stream().mapToDouble(
             Stock::getPrice).max().getAsDouble()).minStockPricek(stocksTemp.stream().mapToDouble(
             Stock::getPrice).min().getAsDouble()).build());
+    }
+
+    @Override
+    @Transactional
+    public void deleteStockForCompany(String companyCode) {
+        System.out.println("com"+companyCode);
+        stockRepository.deleteStockForCompany(companyCode);
     }
 
     public Stock buildStockPrice(StockPriceRequest stockPriceRequest) {

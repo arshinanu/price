@@ -4,9 +4,11 @@ import com.cat.stocks.price.Service.StockService;
 import com.cat.stocks.price.controller.Response.StockPriceResponse;
 import com.cat.stocks.price.controller.request.StockPriceRequest;
 import com.cat.stocks.price.controller.request.StockRequest;
+import com.cat.stocks.price.domain.Stock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,5 +49,12 @@ public class StockController {
     public ResponseEntity<Object> getStockInfo(@RequestBody StockRequest stockRequest)
     {
         return ResponseEntity.status(201).body(stockService.retrieveStock(stockRequest));
+    }
+
+    @DeleteMapping(value = "/deleteStocks/{companyCode}")
+    public ResponseEntity<Object> deleteStocks(@PathVariable(required = false) String companyCode)
+    {
+        stockService.deleteStockForCompany(companyCode);
+        return ResponseEntity.status(201).body(Stock.builder().companyCode(companyCode).build());
     }
 }

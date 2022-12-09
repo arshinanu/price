@@ -9,6 +9,7 @@ import static com.cat.stocks.price.domain.QueryConstant.StockQuery;
 import com.cat.stocks.price.controller.request.StockRequest;
 import com.cat.stocks.price.domain.Stock;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -32,4 +33,8 @@ public interface StockRepository extends JpaRepository<Stock, Integer> {
     @Query(value = "select s from Stock s where s.companyCode=:companyCode "
         +"and s.stockPriceTime between :startStockDate and :endStockDate  "  )
     List<Stock> getStockValues(String companyCode, LocalDateTime startStockDate,LocalDateTime endStockDate );
+
+    @Modifying
+    @Query("Delete from Stock s where s.companyCode=:companyCode")
+    void deleteStockForCompany(String companyCode);
 }
